@@ -1,0 +1,76 @@
+using System;
+using System.Collections;
+using System.IO;
+using System.Text.RegularExpressions;
+
+class SpellChecker
+{
+    private Hashtable dictionary = new Hashtable();
+
+    // Load danh sách từ đúng chính tả từ file dictionary.txt
+    public void LoadDictionary(string dictionaryFile)
+    {
+        if (!File.Exists(dictionaryFile))
+        {
+            Console.WriteLine("Dictionary file not found!");
+            return;
+        }
+        
+        foreach (string line in File.ReadAllLines(dictionaryFile))
+        {
+            string word = line.Trim().ToLower();
+            if (!string.IsNullOrEmpty(word) && !dictionary.ContainsKey(word))
+            {
+                dictionary.Add(word, true);
+            }
+        }
+    }
+
+    // Kiểm tra chính tả cho nội dung từ file input.txt
+    public void CheckSpelling(string inputFile)
+    {
+        if (!File.Exists(inputFile))
+        {
+            Console.WriteLine("Input file not found!");
+            return;
+        }
+        
+        string text = File.ReadAllText(inputFile);
+        // Tách các từ dựa trên các ký tự không phải chữ
+        string[] words = Regex.Split(text, @"\W+");
+        bool errorFound = false;
+        
+        foreach (string word in words)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+                continue;
+                
+            string lowerWord = word.ToLower();
+            if (!dictionary.ContainsKey(lowerWord))
+            {
+                Console.WriteLine("Misspelled or unknown word: " + word);
+                errorFound = true;
+            }
+        }
+        
+        if (!errorFound)
+        {
+            Console.WriteLine("No spelling errors found.");
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        SpellChecker spellChecker = new SpellChecker();
+        Console.Write("Enter the dictionary file name (e.g., dictionary.txt): ");
+        string dictFile = Console.ReadLine();
+        spellChecker.LoadDictionary(dictFile);
+
+        Console.Write("Enter the input file name to check spelling (e.g., input.txt): ");
+        string inputFile = Console.ReadLine();
+        spellChecker.CheckSpelling(inputFile);
+    }
+}
