@@ -1,0 +1,74 @@
+using System;
+using System.Collections;
+using System.IO;
+
+class PhoneBook : DictionaryBase
+{
+    public void AddContact(string name, string phone)
+    {
+        if (!InnerHashtable.Contains(name))
+        {
+            InnerHashtable.Add(name, phone);
+        }
+    }
+
+    public void LoadFromFile(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("File khong ton tai!");
+            return;
+        }
+        
+        foreach (var line in File.ReadAllLines(filePath))
+        {
+            var parts = line.Split(',');
+            if (parts.Length == 2)
+            {
+                AddContact(parts[0].Trim(), parts[1].Trim());
+            }
+        }
+    }
+
+    public void SearchByName(string name)
+    {
+        if (InnerHashtable.Contains(name))
+        {
+            Console.WriteLine($"{name}: {InnerHashtable[name]}");
+        }
+        else
+        {
+            Console.WriteLine("Khong tim thay so dien thoai!");
+        }
+    }
+
+    public void SearchByPhone(string phoneNumber)
+    {
+        foreach (DictionaryEntry entry in InnerHashtable)
+        {
+            if ((string)entry.Value == phoneNumber)
+            {
+                Console.WriteLine($"{entry.Key}: {entry.Value}");
+                return;
+            }
+        }
+        Console.WriteLine("Khong tim thay ten tuong ung!");
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        PhoneBook phoneBook = new PhoneBook();
+        phoneBook.LoadFromFile("contacts.txt");
+        
+        Console.Write("Nhap ten de tim kiem: ");
+        string name = Console.ReadLine();
+        phoneBook.SearchByName(name);
+
+        Console.Write("Nhap so dien thoai de tim kiem: ");
+        string phone = Console.ReadLine();
+        phoneBook.SearchByPhone(phone);
+    }
+}
