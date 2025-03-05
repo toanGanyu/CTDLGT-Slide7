@@ -1,0 +1,54 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
+
+public class BucketHash {
+    private const int SIZE = 10;
+    List<string>[] data;
+
+    public BucketHash() {
+        data = new List<string>[SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            data[i] = new List<string>();
+        }
+    }
+
+    private int Hash(string s) {
+        using (SHA256 sha256 = SHA256.Create()) {
+            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(s));
+            int hash = BitConverter.ToInt32(hashBytes, 0);
+            return Math.Abs(hash) % SIZE;
+        }
+    }
+
+    public void Insert(string item) {
+        int hashValue = Hash(item);
+        if (!data[hashValue].Contains(item)) {
+            data[hashValue].Add(item);
+        }
+    }
+
+    public void Remove(string item) {
+        int hashValue = Hash(item);
+        if (data[hashValue].Contains(item)) {
+            data[hashValue].Remove(item);
+        }
+    }
+
+    public bool Search(string item) {
+        int hashValue = Hash(item);
+        return data[hashValue].Contains(item);
+    }
+
+    public void PrintTable() {
+        for (int i = 0; i < SIZE; i++) {
+            Console.Write($"Bucket {i}: ");
+            foreach (var item in data[i]) {
+                Console.Write(item + " -> ");
+            }
+            Console.WriteLine("null");
+        }
+    }
+}
